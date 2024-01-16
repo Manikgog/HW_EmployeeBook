@@ -1,62 +1,58 @@
 package pro.sky.service;
 
+import lombok.Getter;
 import org.springframework.stereotype.Service;
+import pro.sky.checkservice.CheckService;
 import pro.sky.checkservice.CheckServiceImpl;
 import pro.sky.model.Employee;
-import pro.sky.exceptions.EmployeeAlreadyAddedException;
-import pro.sky.exceptions.EmployeeNotFoundException;
-import pro.sky.exceptions.EmployeeStorageIsFullException;
-import pro.sky.repo.ListOfEmployees;
+
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 @Service
 public class EmployeeServiceImpl implements EmployeeService {
-
-    private final CheckServiceImpl checkService;
-    private final ListOfEmployees listOfEmployees;
-    public EmployeeServiceImpl(CheckServiceImpl checkService,
-                               ListOfEmployees listOfEmployees){
-        this.checkService = checkService;
-        this.listOfEmployees = listOfEmployees;
+    private final List<Employee> listOfEmployees;
+    @Getter
+    private final int maxNumberOfEmployees = 10;
+    public EmployeeServiceImpl(){
+        listOfEmployees = new ArrayList<>();
     }
 
-    public Employee addEmployee(String firstName, String lastName){
-        checkService.checkVacancy(firstName, lastName);
-        checkService.checkingAvailabilityOfEmployee(firstName, lastName);
-        Employee emp = new Employee(firstName, lastName);
+    public Employee addEmployee(String firstName, String lastName, Float salary, Integer department){
+        CheckService checkService = new CheckServiceImpl(this);
+        checkService.checkParameters(firstName, lastName, salary, department);
+        checkService.checkVacancy();    // проверка наличия свободных вакансий
+        checkService.checkingAvailabilityOfEmployee(firstName, lastName);   // проверка наличия работника с такими же именем и фамилией
+        Employee emp = new Employee(firstName, lastName, salary, department);
         listOfEmployees.add(emp);
-        return listOfEmployees.get(emp);
+        return listOfEmployees.get(listOfEmployees.indexOf(emp));
     }
 
     public Employee removeEmployee(String firstName, String lastName){
+        CheckService checkService = new CheckServiceImpl(this);
+        checkService.checkNameAndLastName(firstName, lastName);
         Employee employee = findEmployee(firstName, lastName);
         listOfEmployees.remove(employee);
         return employee;
     }
 
     public Employee findEmployee(String firstName, String lastName){
-        Employee employee = new Employee(firstName, lastName);
-        Employee employee1 = getEmployee(employee);
-        if(employee1 != null){
-            return employee1;
-        }
-        throw new EmployeeNotFoundException("EmployeeNotFound");
-    }
-
-    public ArrayList<Employee> showEmployees(){
-        return new ArrayList<>(listOfEmployees);
-    }
-
-
-    private Employee getEmployee(Employee employee){
-        for (Employee emp :
-                listOfEmployees) {
-            if(emp.equals(employee)){
-                return emp;
+        CheckService checkService = new CheckServiceImpl(this);
+        checkService.checkNameAndLastName(firstName, lastName);
+        checkService.checkEmployeeInList(firstName, lastName);
+        Employee employee = null;
+        for (Employee emp : listOfEmployees){
+            if (emp.getFirstName().equals(firstName) && emp.getLastName().equals(lastName)){
+                employee = emp;
             }
         }
-        return null;
+        return employee;
+    }
+
+    public List<Employee> getEmployees(){
+        return Collections.unmodifiableList(listOfEmployees);
     }
 
 }
