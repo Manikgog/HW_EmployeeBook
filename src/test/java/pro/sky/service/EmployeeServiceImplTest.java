@@ -1,6 +1,7 @@
 package pro.sky.service;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -9,7 +10,6 @@ import pro.sky.exceptions.EmployeeNotFoundException;
 import pro.sky.exceptions.EmployeeStorageIsFullException;
 import pro.sky.exceptions.NoAllParametersException;
 import pro.sky.model.Employee;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
@@ -137,19 +137,7 @@ public class EmployeeServiceImplTest {
         Assertions.assertThrows(EmployeeNotFoundException.class, () -> employeeServiceImpl.removeEmployee(firstName, lastName));
     }
 
-    public static Stream<Arguments> provideParamsForGetEmployeeMethodTest() {
-        return Stream.of(
-                Arguments.of("Chendler", "Bing", 10000f, 1),
-                Arguments.of("Monica", "Bing", 12000f, 2),
-                Arguments.of("Rachel", "Grin", 15000f, 2),
-                Arguments.of("Fuiby", "Buffey", 14000f, 2),
-                Arguments.of("Ross", "Geller", 16000f, 1),
-                Arguments.of("Joe", "Tribiany", 9000f, 1)
-        );
-    }
-
-    @ParameterizedTest  // проверка выдачи всего списка работников
-    @MethodSource("provideParamsForGetEmployeeMethodTest")
+    @Test
     public void testGetEmployee(){
         List<Employee> list = new ArrayList<>();
         list.add(new Employee("Chendler", "Bing", 10000f, 1));
