@@ -5,6 +5,7 @@ import pro.sky.checkservice.CheckService;
 import pro.sky.model.Employee;
 import java.util.List;
 import java.util.Map;
+import java.util.OptionalDouble;
 import java.util.stream.Collectors;
 
 @Service
@@ -22,42 +23,35 @@ public class DepartmentServiceImpl implements DepartmentService{
     }
 
     public List<Employee> getEmployeesByDepartment(int department){
-        checkService.checkNumberDepartment(department);
+        checkService.checkNumberDepartment(department, employeeService);
         return employeeService.getEmployees().stream().filter((employee)->employee.getDepartment() == department).toList();
     }
 
     public float summSalaryByDepartment(int department){
-        checkService.checkNumberDepartment(department);
-        List<Employee> list = getEmployeesByDepartment(department);
-        float sum = 0;
-        for(Employee e : list){
-            sum += e.getSalary();
-        }
-        return sum;
+        checkService.checkNumberDepartment(department, employeeService);
+        double sumSalary = getEmployeesByDepartment(department)
+                .stream()
+                .mapToDouble(Employee::getSalary)
+                .sum();
+        return (float)sumSalary;
     }
 
     public float getMaxSalaryByDepartment(int department){
-        checkService.checkNumberDepartment(department);
-        List<Employee> list = getEmployeesByDepartment(department);
-        float maxSalary = list.get(0).getSalary();
-        for(Employee e : list){
-            if(maxSalary < e.getSalary()){
-                maxSalary = e.getSalary();
-            }
-        }
-        return maxSalary;
+        checkService.checkNumberDepartment(department, employeeService);
+        OptionalDouble maxSalary = getEmployeesByDepartment(department)
+                .stream()
+                .mapToDouble(Employee::getSalary)
+                .max();
+        return (float) maxSalary.getAsDouble();
     }
 
     public float getMinSalaryByDepartment(int department){
-        checkService.checkNumberDepartment(department);
-        List<Employee> list = getEmployeesByDepartment(department);
-        float minSalary = list.get(0).getSalary();
-        for(Employee e : list){
-            if(minSalary > e.getSalary()){
-                minSalary = e.getSalary();
-            }
-        }
-        return minSalary;
+        checkService.checkNumberDepartment(department, employeeService);
+        OptionalDouble minSalary = getEmployeesByDepartment(department)
+                .stream()
+                .mapToDouble(Employee::getSalary)
+                .min();
+        return (float) minSalary.getAsDouble();
     }
 
 }

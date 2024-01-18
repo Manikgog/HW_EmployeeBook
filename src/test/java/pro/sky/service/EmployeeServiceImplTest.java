@@ -5,6 +5,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import pro.sky.checkservice.CheckService;
+import pro.sky.checkservice.CheckServiceImpl;
 import pro.sky.exceptions.EmployeeAlreadyAddedException;
 import pro.sky.exceptions.EmployeeNotFoundException;
 import pro.sky.exceptions.EmployeeStorageIsFullException;
@@ -18,7 +20,8 @@ public class EmployeeServiceImplTest {
     private final EmployeeServiceImpl employeeServiceImpl;
 
     public EmployeeServiceImplTest() {
-        this.employeeServiceImpl = new EmployeeServiceImpl();
+        CheckService checkService = new CheckServiceImpl();
+        employeeServiceImpl = new EmployeeServiceImpl(checkService);
 
         employeeServiceImpl.addEmployee("Chendler", "Bing", 10000f, 1);
         employeeServiceImpl.addEmployee("Monica", "Bing", 12000f, 2);

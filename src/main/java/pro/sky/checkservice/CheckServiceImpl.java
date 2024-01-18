@@ -10,10 +10,7 @@ import java.util.List;
 
 @Service
 public class CheckServiceImpl implements CheckService{
-    private final EmployeeService employeeService;
-    public CheckServiceImpl(EmployeeService employeeService){
-        this.employeeService = employeeService;
-    }
+    public CheckServiceImpl(){}
     public void checkParameters(String name, String lastName, Float salary, Integer department){
         List<String> listOfParameters = new ArrayList<>();
         if(name == null){
@@ -29,15 +26,16 @@ public class CheckServiceImpl implements CheckService{
             listOfParameters.add("department=номер отдела");
         }
         if(!listOfParameters.isEmpty()){
-            String result = "необходимо ввести: ";
+            StringBuilder result = new StringBuilder("необходимо ввести: ");
             for (int i = 0; i < listOfParameters.size(); i++){
                 if(i == 0){
-                    result += listOfParameters.get(i);
+                    result.append(listOfParameters.get(i));
                 }else {
-                    result += "&" + listOfParameters.get(i);
+                    result.append("&");
+                    result.append(listOfParameters.get(i));
                 }
             }
-            throw new NoAllParametersException(result);
+            throw new NoAllParametersException(result.toString());
         }
     }
 
@@ -52,13 +50,13 @@ public class CheckServiceImpl implements CheckService{
         }
     }
 
-    public void checkVacancy(){
+    public void checkVacancy(EmployeeService employeeService){
         if(employeeService.getEmployees().size() >= employeeService.getMaxNumberOfEmployees()){
             throw new EmployeeStorageIsFullException("Вакансий нет.");
         }
     }
 
-    public void checkingAvailabilityOfEmployee(String name, String lastName){
+    public void checkingAvailabilityOfEmployee(String name, String lastName, EmployeeService employeeService){
         for (Employee employee : employeeService.getEmployees()){
             if(employee.getFirstName().equals(name) && employee.getLastName().equals(lastName)){
                 throw new EmployeeAlreadyAddedException("Работник уже есть в списке");
@@ -66,7 +64,7 @@ public class CheckServiceImpl implements CheckService{
         }
     }
 
-    public void checkEmployeeInList(String name, String lastName){
+    public void checkEmployeeInList(String name, String lastName, EmployeeService employeeService){
         for (Employee employee : employeeService.getEmployees()) {
             if (employee.getFirstName().equals(name) && employee.getLastName().equals(lastName)) {
                 return;
@@ -75,7 +73,7 @@ public class CheckServiceImpl implements CheckService{
         throw new EmployeeNotFoundException("Работника нет в списке.");
     }
 
-    public void checkNumberDepartment(int department){
+    public void checkNumberDepartment(int department, EmployeeService employeeService){
         for (Employee e : employeeService.getEmployees()){
             if(e.getDepartment() == department){
                 return;
@@ -83,4 +81,5 @@ public class CheckServiceImpl implements CheckService{
         }
         throw new NoSuchDepartmentException("Такого номера отдела нет.");
     }
+
 }

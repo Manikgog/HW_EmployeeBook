@@ -19,7 +19,7 @@ public class DepartmentController {
         this.departmentService = departmentService;
     }
 
-    @GetMapping("/employee")
+    @GetMapping("/employees")
     public Map<Integer, List<Employee>> showEmployees(){
         return departmentService.getEmployees();
     }

@@ -3,7 +3,6 @@ package pro.sky.service;
 import lombok.Getter;
 import org.springframework.stereotype.Service;
 import pro.sky.checkservice.CheckService;
-import pro.sky.checkservice.CheckServiceImpl;
 import pro.sky.model.Employee;
 
 
@@ -13,25 +12,25 @@ import java.util.List;
 
 @Service
 public class EmployeeServiceImpl implements EmployeeService {
+    private final CheckService checkService;
     private final List<Employee> listOfEmployees;
     @Getter
     private final int maxNumberOfEmployees = 10;
-    public EmployeeServiceImpl(){
+    public EmployeeServiceImpl(CheckService checkService){
         listOfEmployees = new ArrayList<>();
+        this.checkService = checkService;
     }
 
     public Employee addEmployee(String firstName, String lastName, Float salary, Integer department){
-        CheckService checkService = new CheckServiceImpl(this);
         checkService.checkParameters(firstName, lastName, salary, department);
-        checkService.checkVacancy();    // проверка наличия свободных вакансий
-        checkService.checkingAvailabilityOfEmployee(firstName, lastName);   // проверка наличия работника с такими же именем и фамилией
+        checkService.checkVacancy(this);    // проверка наличия свободных вакансий
+        checkService.checkingAvailabilityOfEmployee(firstName, lastName, this);   // проверка наличия работника с такими же именем и фамилией
         Employee emp = new Employee(firstName, lastName, salary, department);
         listOfEmployees.add(emp);
-        return listOfEmployees.get(listOfEmployees.indexOf(emp));
+        return emp;
     }
 
     public Employee removeEmployee(String firstName, String lastName){
-        CheckService checkService = new CheckServiceImpl(this);
         checkService.checkNameAndLastName(firstName, lastName);
         Employee employee = findEmployee(firstName, lastName);
         listOfEmployees.remove(employee);
@@ -39,13 +38,13 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     public Employee findEmployee(String firstName, String lastName){
-        CheckService checkService = new CheckServiceImpl(this);
         checkService.checkNameAndLastName(firstName, lastName);
-        checkService.checkEmployeeInList(firstName, lastName);
+        checkService.checkEmployeeInList(firstName, lastName, this);
         Employee employee = null;
         for (Employee emp : listOfEmployees){
             if (emp.getFirstName().equals(firstName) && emp.getLastName().equals(lastName)){
                 employee = emp;
+                break;
             }
         }
         return employee;
